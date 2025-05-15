@@ -18,7 +18,7 @@ Ottenere una lista di prodotti ordinati da clienti di livello (tier) 2 tra l’0
      */
     public static void main(String[] args) {
         Product b1 = new Product(4523L, "Ciao", "Books", 34.0);
-        Product b2 = new Product(4345L, "Ciao", "Books", 109.0);
+        Product b2 = new Product(4345L, "Don Quijote", "Books", 109.0);
         Product b3 = new Product(4523L, "Ciao", "Books", 30.0);
 
         Product ba1 = new Product(2342L, "Ciao", "Baby", 30.0);
@@ -29,18 +29,27 @@ Ottenere una lista di prodotti ordinati da clienti di livello (tier) 2 tra l’0
         Product bo2 = new Product(4563L, "Ciao", "Boys", 35.0);
         Product bo3 = new Product(4567L, "Ciao", "Boys", 38.0);
 
-
-        List<Product> libri = List.of(b1, b2, b3);
-        List<Product> libriEconomici = libri.stream().filter(libro -> libro.getPrice() < 100).toList(); //to list
-        // ritorna una lista immutibile, non ci potrà più fare .add  .remove. .collect(Collectors.toList()) invece
-        // ritorna una lista mutabile
-
-
         List<Product> products = List.of(b1,b2,b3,ba1,ba2,ba3,bo1,bo2,bo3);
 
+        //es 1
+        List<Product> libri = List.of(b1, b2, b3);
+        List<Product> libriCostosi = products.stream().filter(libro -> libro.getPrice() > 100 && libro.getCategory().contains("Books")).toList(); //to list
+        // ritorna una lista immutibile, non ci potrà più fare .add  .remove. .collect(Collectors.toList()) invece
+        // ritorna una lista mutabile
+        System.out.println(libriCostosi);
+
+
+
+
+        //es2
         List<Product> babyProducts = products.stream().filter(product -> product.getName().contains("Baby")).toList();
 
+
+        //es 3
         List<Product> boysProducts = products.stream().filter(product -> product.getName().contains("Boys")).peek(product -> product.setPrice((product.getPrice()*0.9))).toList();
+        List<Product> boysProducts2 = products.stream().filter(product -> product.getName().contains("Boys")).map(product -> {product.setPrice(product.getPrice()*0.9); return product;}).toList();
+
+        System.out.println(boysProducts2);
 
 
         Customer gino = new Customer(234L, "Gino", 2);
@@ -55,8 +64,18 @@ Ottenere una lista di prodotti ordinati da clienti di livello (tier) 2 tra l’0
         List<Order> ordini = List.of(n1, n2, n3);
 
         List<Order> ordini2 = ordini.stream().filter(order -> order.getCustomer().getTier() == 2 && order.getOrderDate().isAfter(LocalDate.of(2025,4,1)) && order.getDeliveryDate().isBefore(LocalDate.of(2025, 5, 14))).toList();
+        //alternativa es 4
+        List<Order> prodottiOrdini3 = ordini.stream().filter(order -> order.getCustomer().getTier() == 2).
+                filter(order -> order.getOrderDate().isAfter(LocalDate.of(2025,4,1))).
+                filter(order -> order.getDeliveryDate().isBefore(LocalDate.of(2025, 5, 14))).
+                flatMap(order -> order.getProducts().stream()).toList();
 
-        System.out.println(ordini2);
+        System.out.println(prodottiOrdini3);
+
+        //es 2corretto
+        List<Order> es2 = ordini.stream().filter(order -> order.getProducts().stream().
+                anyMatch(product-> product.getCategory().equals("Baby"))).toList();
+        System.out.println(es2);
 
     }
 }
